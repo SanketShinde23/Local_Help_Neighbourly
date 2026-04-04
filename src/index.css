@@ -1,0 +1,420 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+
+/* ── Design tokens — Light (default) ───────────────────────── */
+:root {
+  /* Brand */
+  --primary:        #4f46e5;
+  --primary-light:  #6366f1;
+  --primary-dim:    #eef2ff;
+  --primary-dark:   #3730a3;
+  --accent:         #06b6d4;
+  --accent-dim:     #ecfeff;
+  --success:        #10b981;
+  --success-dim:    #d1fae5;
+  --warning:        #f59e0b;
+  --danger:         #ef4444;
+
+  /* Surfaces */
+  --surface:        #ffffff;
+  --surface-2:      #f8fafc;
+  --surface-3:      #f1f5f9;
+  --surface-overlay: rgba(255,255,255,0.92);
+
+  /* Borders */
+  --border:         #e2e8f0;
+  --border-strong:  #cbd5e1;
+
+  /* Text */
+  --text-primary:   #0f172a;
+  --text-secondary: #475569;
+  --text-muted:     #94a3b8;
+
+  /* Shadows */
+  --shadow-sm:  0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:  0 4px 16px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.04);
+  --shadow-lg:  0 10px 40px rgba(0,0,0,.10), 0 4px 12px rgba(0,0,0,.06);
+  --shadow-xl:  0 20px 60px rgba(0,0,0,.12), 0 8px 20px rgba(0,0,0,.06);
+
+  /* Shape */
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   18px;
+  --radius-xl:   24px;
+  --radius-full: 999px;
+
+  /* Typography */
+  --font:         'Inter', system-ui, sans-serif;
+  --font-display: 'Plus Jakarta Sans', 'Inter', sans-serif;
+
+  /* Layout */
+  --nav-h:    68px;
+  --transition: 0.2s cubic-bezier(.4,0,.2,1);
+
+  /* Page background */
+  --page-bg: #f0f4f8;
+
+  /* Navbar overlay */
+  --nav-bg: rgba(255,255,255,0.92);
+  --nav-border: rgba(226,232,240,1);
+}
+
+/* ── Design tokens — Dark ───────────────────────────────────── */
+[data-theme="dark"] {
+  /* Brand — slightly brighter in dark for contrast */
+  --primary:        #6366f1;
+  --primary-light:  #818cf8;
+  --primary-dim:    #1e1b4b;
+  --primary-dark:   #4f46e5;
+  --accent:         #22d3ee;
+  --accent-dim:     #083344;
+  --success:        #34d399;
+  --success-dim:    #064e3b;
+  --warning:        #fbbf24;
+  --danger:         #f87171;
+
+  /* Surfaces */
+  --surface:        #1e2130;
+  --surface-2:      #161824;
+  --surface-3:      #252840;
+  --surface-overlay: rgba(30,33,48,0.92);
+
+  /* Borders */
+  --border:         #2d3155;
+  --border-strong:  #3d4270;
+
+  /* Text */
+  --text-primary:   #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted:     #64748b;
+
+  /* Shadows — more visible on dark */
+  --shadow-sm:  0 1px 3px rgba(0,0,0,.25), 0 1px 2px rgba(0,0,0,.2);
+  --shadow-md:  0 4px 16px rgba(0,0,0,.35), 0 2px 6px rgba(0,0,0,.2);
+  --shadow-lg:  0 10px 40px rgba(0,0,0,.45), 0 4px 12px rgba(0,0,0,.25);
+  --shadow-xl:  0 20px 60px rgba(0,0,0,.55), 0 8px 20px rgba(0,0,0,.3);
+
+  /* Page background */
+  --page-bg: #11121f;
+
+  /* Navbar */
+  --nav-bg: rgba(22,24,36,0.93);
+  --nav-border: rgba(45,49,85,1);
+}
+
+/* ── Reset ──────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+/* Prevent any element from causing horizontal overflow */
+*, *::before, *::after { box-sizing: border-box; }
+img, video, svg { max-width: 100%; display: block; }
+
+body {
+  font-family: var(--font);
+  background: var(--page-bg);
+  color: var(--text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+#root { width: 100%; overflow-x: hidden; }
+.App { margin: 0; padding: 0; width: 100%; min-height: 100vh; }
+
+a { color: inherit; }
+button, input, select, textarea { font-family: inherit; }
+
+/* ── Scrollbar ──────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: var(--radius-full); }
+html { scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent; }
+
+/* ── Utility ────────────────────────────────────────────────── */
+.spin { animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .5; }
+}
+
+code { font-family: 'Fira Code', 'Courier New', monospace; }
+
+/* ── Smooth theme transitions on surfaces ──────────────────── */
+.navbar,
+.service-card, .testimonial-card, .step,
+.history-card, .job-card, .summary-card,
+.detail-card, .booking-card, .provider-form,
+.filters-container, .dashboard-sidebar,
+.dashboard-form-card, .dashboard-list-card, .dashboard-panel,
+.auth-card, .modal-card,
+.admin-pending-card, .admin-booking-card,
+.category-hub-card, .profile-header,
+.no-history, .dashboard-role-intro,
+input, select, textarea, button {
+  transition: background-color 0.25s ease, border-color 0.25s ease,
+              color 0.25s ease, box-shadow 0.25s ease;
+}
+/* Footer is always dark — opt it out of theme transitions */
+.footer, .footer * {
+  transition: none !important;
+}
+
+/* ── Dark mode — component overrides ──────────────────────── */
+
+/* Inputs & selects */
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background: var(--surface-3) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-strong) !important;
+}
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: var(--text-muted) !important;
+}
+[data-theme="dark"] input:focus,
+[data-theme="dark"] select:focus,
+[data-theme="dark"] textarea:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(99,102,241,.2) !important;
+}
+
+/* Auth card */
+[data-theme="dark"] .auth-container {
+  background: linear-gradient(140deg, #050413 0%, #1a1740 55%, #0d0d1e 100%);
+}
+
+/* Search inputs inside hero (white box) */
+[data-theme="dark"] .search-input-group {
+  background: var(--surface);
+}
+[data-theme="dark"] .search-input,
+[data-theme="dark"] .location-input {
+  background: transparent;
+  color: var(--text-primary);
+}
+[data-theme="dark"] .location-input {
+  border-left-color: var(--border);
+}
+
+/* Services & How It Works sections */
+[data-theme="dark"] .services-section {
+  background: var(--surface-2);
+}
+[data-theme="dark"] .how-it-works {
+  background: var(--page-bg);
+}
+[data-theme="dark"] .testimonials {
+  background: var(--surface-2);
+}
+
+/* Testimonial quote mark */
+[data-theme="dark"] .testimonial-card::before {
+  color: var(--primary-dim);
+}
+
+/* Service card icon bubbles – keep subtle in dark */
+[data-theme="dark"] .service-card:nth-child(1) .service-icon { background: #2d1f5e; color: #a78bfa; }
+[data-theme="dark"] .service-card:nth-child(2) .service-icon { background: #3b1130; color: #f9a8d4; }
+[data-theme="dark"] .service-card:nth-child(3) .service-icon { background: #052e16; color: #6ee7b7; }
+[data-theme="dark"] .service-card:nth-child(4) .service-icon { background: #431407; color: #fdba74; }
+[data-theme="dark"] .service-card:nth-child(5) .service-icon { background: #082f49; color: #7dd3fc; }
+[data-theme="dark"] .service-card:nth-child(6) .service-icon { background: #422006; color: #fde68a; }
+
+/* Dashboard role intro */
+[data-theme="dark"] .dashboard-role-intro {
+  background: linear-gradient(135deg, rgba(79,70,229,.15) 0%, rgba(99,102,241,.1) 100%);
+  border-color: rgba(99,102,241,.25);
+}
+
+/* Code / monospace */
+[data-theme="dark"] code {
+  background: var(--surface-3);
+  color: var(--primary-light);
+}
+
+/* Scrollbar */
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+}
+
+/* Steps connector line */
+[data-theme="dark"] .steps-container::before {
+  background: linear-gradient(90deg, var(--surface-3), var(--primary), var(--surface-3));
+}
+
+/* CTA in HowItWorks */
+[data-theme="dark"] .cta-container {
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+  box-shadow: 0 20px 60px rgba(79,70,229,.3);
+}
+
+/* Footer — always dark, pin the background so theme tokens can't override it */
+[data-theme="dark"] .footer { background: #0d0f1a; }
+
+/* Profile header gradient */
+[data-theme="dark"] .profile-avatar img {
+  border-color: var(--primary-dim);
+}
+
+/* Status badge overrides for dark */
+[data-theme="dark"] .status-completed,
+[data-theme="dark"] .status-paid,
+[data-theme="dark"] .status-accepted {
+  background: #064e3b;
+  color: #6ee7b7;
+  border-color: #065f46;
+}
+[data-theme="dark"] .status-pending {
+  background: #451a03;
+  color: #fcd34d;
+  border-color: #78350f;
+}
+[data-theme="dark"] .status-confirmed,
+[data-theme="dark"] .status-upcoming {
+  background: #1e3a5f;
+  color: #93c5fd;
+  border-color: #1d4ed8;
+}
+[data-theme="dark"] .status-cancelled {
+  background: #450a0a;
+  color: #f87171;
+  border-color: #7f1d1d;
+}
+[data-theme="dark"] .status-reviewed {
+  background: #1e1b4b;
+  color: #a5b4fc;
+  border-color: #312e81;
+}
+[data-theme="dark"] .status-rejected {
+  background: var(--surface-3);
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+[data-theme="dark"] .listing-status-pill.listing-pending {
+  background: #451a03;
+  color: #fcd34d;
+}
+[data-theme="dark"] .listing-status-pill.listing-approved {
+  background: #064e3b;
+  color: #6ee7b7;
+}
+[data-theme="dark"] .listing-status-pill.listing-rejected {
+  background: #450a0a;
+  color: #f87171;
+}
+
+/* Info banner */
+[data-theme="dark"] .info-banner {
+  background: #1e3a5f;
+  border-color: #1d4ed8;
+  color: #93c5fd;
+}
+
+/* Error messages */
+[data-theme="dark"] .error-message {
+  background: #450a0a;
+  color: #f87171;
+  border-color: #7f1d1d;
+}
+
+/* No-history empty state */
+[data-theme="dark"] .no-history {
+  background: var(--surface-3);
+  border-color: var(--border);
+}
+
+/* Modal overlay */
+[data-theme="dark"] .modal-overlay {
+  background: rgba(0,0,0,.6);
+}
+
+/* Search box in filters */
+[data-theme="dark"] .search-box {
+  border-color: var(--border-strong);
+}
+
+/* Tab btn active */
+[data-theme="dark"] .tab-btn.active {
+  color: var(--primary-light);
+  border-bottom-color: var(--primary-light);
+}
+
+/* Earnings badge */
+[data-theme="dark"] .earnings {
+  background: #064e3b;
+  color: #6ee7b7;
+}
+
+/* Provider-count pill */
+[data-theme="dark"] .provider-count {
+  background: var(--success-dim);
+  color: var(--success);
+}
+
+/* service category tag */
+[data-theme="dark"] .service-category-tag,
+[data-theme="dark"] .service-category {
+  background: var(--primary-dim);
+  color: var(--primary-light);
+}
+
+/* contact mediation note */
+[data-theme="dark"] .contact-mediation-note {
+  background: #1e3a5f;
+  border-color: #1d4ed8;
+  color: #93c5fd;
+}
+[data-theme="dark"] .booking-privacy-hint,
+[data-theme="dark"] .booking-location-hint {
+  color: var(--text-muted);
+}
+
+/* user role badge */
+[data-theme="dark"] .user-role-badge {
+  background: var(--primary-dim);
+  color: var(--primary-light);
+}
+
+/* view-all btn */
+[data-theme="dark"] .view-all-btn {
+  color: var(--primary-light);
+  border-color: var(--primary-light);
+}
+[data-theme="dark"] .view-all-btn:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* Category hub card visual */
+[data-theme="dark"] .category-hub-card-visual-all {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+}
+[data-theme="dark"] .category-hub-card-all .category-hub-card-body {
+  background: var(--surface);
+}
+
+/* admin pending/booking cards */
+[data-theme="dark"] .admin-pending-card,
+[data-theme="dark"] .admin-booking-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+/* form notice */
+[data-theme="dark"] .dashboard-form-notice {
+  background: var(--surface-3);
+  border-color: var(--border);
+  color: var(--text-secondary);
+}
