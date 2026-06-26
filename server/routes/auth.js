@@ -14,20 +14,26 @@ const sendEmail = require('../utils/sendEmail');
 router.post('/register', async (req, res) => {
   const { name, email, password, userType, serviceCategory, phone } = req.body;
 
+  console.log('Signup request received', { email, userType });
+
   try {
     if (userType === 'admin') {
+      console.log('Signup rejected: invalid account type admin');
       return res.status(400).json({ msg: 'Invalid account type' });
     }
     const phoneStr = phone != null ? String(phone).trim() : '';
     if (phoneStr.length < 10) {
+      console.log('Signup rejected: invalid phone');
       return res.status(400).json({ msg: 'A valid contact number (at least 10 digits) is required' });
     }
 
     let user = await User.findOne({ email });
     if (user) {
+      console.log('Signup rejected: user already exists', email);
       return res.status(400).json({ msg: 'User already exists' });
     }
 
+    console.log('Creating user...');
     user = new User({
       name,
       email,
@@ -39,6 +45,7 @@ router.post('/register', async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(password, salt);
     await user.save();
+    console.log('User saved', { userId: user._id, email: user.email });
 
     if (userType === 'provider') {
       const capitalize = (s) => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
@@ -64,12 +71,15 @@ router.post('/register', async (req, res) => {
         listingStatus: 'pending',
       });
       await defaultService.save();
+      console.log('Default provider service saved');
     }
 
+    console.log('Generating OTP...');
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     user.emailVerificationOtp = otp;
-    user.emailVerificationOtpExpire = Date.now() + 10 * 60 * 1000;
+    user.emailVerificationOtpExpire = new Date(Date.now() + 10 * 60 * 1000);
     await user.save();
+    console.log('OTP saved to MongoDB', { email: user.email, otpExpire: user.emailVerificationOtpExpire });
 
     try {
       const message = `
@@ -79,22 +89,27 @@ router.post('/register', async (req, res) => {
         <p>This OTP will expire in 10 minutes.</p>
       `;
 
+      console.log('Calling sendEmail...');
       await sendEmail({
         email: user.email,
         subject: 'LocalHelp - Your Verification Code',
         message,
       });
 
+      console.log('Register flow complete — responding 201');
       res.status(201).json({ msg: 'User registered. An OTP has been sent to your email.' });
 
     } catch (err) {
-      console.error('Email sending error:', err);
+      console.error('Email sending error:', err.message);
+      console.error('SEND MAIL ERROR:', err);
+      console.error(err.stack);
       return res.status(500).json({ msg: 'Email could not be sent. Please try again later.' });
     }
 
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
+    console.error('Register route error:', err.message);
+    console.error(err.stack);
+    res.status(500).json({ msg: 'Server Error' });
   }
 });
 

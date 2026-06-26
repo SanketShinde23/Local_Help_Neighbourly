@@ -45,18 +45,21 @@ function Signup() {
 
     setLoading(true);
     try {
-      // Send all form data, including serviceCategory
+      console.log('Signup: sending register request to', `${API_BASE}/api/auth/register`);
       const response = await fetch(`${API_BASE}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
       const data = await response.json();
+      console.log('Signup: register response', response.status, data);
       if (!response.ok) throw new Error(data.msg || 'Something went wrong');
       
+      console.log('Signup: success — navigating to verify-email');
       navigate('/verify-email', { state: { email: formData.email } });
 
     } catch (err) {
+      console.error('Signup: register failed', err);
       setError(err.message);
     } finally {
       setLoading(false);
