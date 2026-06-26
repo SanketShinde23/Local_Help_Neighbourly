@@ -103,13 +103,67 @@ router.post('/register', async (req, res) => {
       console.error('Email sending error:', err.message);
       console.error('SEND MAIL ERROR:', err);
       console.error(err.stack);
-      return res.status(500).json({ msg: 'Email could not be sent. Please try again later.' });
+      const { getEmailConfigStatus } = require('../utils/sendEmail');
+      const emailStatus = getEmailConfigStatus();
+      return res.status(500).json({
+        msg: 'Email could not be sent. Please try again later.',
+        reason: err.message,
+        hint: emailStatus.hint,
+      });
     }
 
   } catch (err) {
     console.error('Register route error:', err.message);
     console.error(err.stack);
     res.status(500).json({ msg: 'Server Error' });
+  }
+});
+
+// --- RESEND VERIFICATION OTP ---
+router.post('/resend-verification', async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ msg: 'Email is required.' });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ msg: 'No account found for this email.' });
+    }
+    if (user.isVerified) {
+      return res.status(400).json({ msg: 'This email is already verified. You can log in.' });
+    }
+
+    console.log('Resend verification requested', { email });
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.emailVerificationOtp = otp;
+    user.emailVerificationOtpExpire = new Date(Date.now() + 10 * 60 * 1000);
+    await user.save();
+
+    const message = `
+      <h1>Email Verification for LocalHelp</h1>
+      <p>Your new One-Time Password (OTP) is:</p>
+      <h2 style="font-size: 24px; letter-spacing: 2px; margin: 20px 0;">${otp}</h2>
+      <p>This OTP will expire in 10 minutes.</p>
+    `;
+
+    await sendEmail({
+      email: user.email,
+      subject: 'LocalHelp - Your Verification Code',
+      message,
+    });
+
+    res.json({ msg: 'Verification code sent. Check your inbox.' });
+  } catch (err) {
+    console.error('Resend verification error:', err.message);
+    const { getEmailConfigStatus } = require('../utils/sendEmail');
+    const emailStatus = getEmailConfigStatus();
+    res.status(500).json({
+      msg: 'Email could not be sent. Please try again later.',
+      reason: err.message,
+      hint: emailStatus.hint,
+    });
   }
 });
 

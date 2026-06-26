@@ -12,7 +12,9 @@ function EmailVerification() {
 
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
   
   // --- THIS IS THE FIX ---
   // The hook is now at the top level of the component.
@@ -22,6 +24,29 @@ function EmailVerification() {
       navigate('/signup');
     }
   }, [email, navigate]);
+
+  const handleResend = async () => {
+    setError('');
+    setNotice('');
+    setResending(true);
+    try {
+      const response = await fetch(`${API_BASE}/api/auth/resend-verification`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        const detail = [data.reason, data.hint].filter(Boolean).join(' — ');
+        throw new Error(detail || data.msg || 'Could not resend code');
+      }
+      setNotice(data.msg || 'Verification code sent. Check your inbox.');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setResending(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -66,6 +91,7 @@ function EmailVerification() {
       <div className="verification-card">
         <form onSubmit={handleSubmit} className="provider-form">
           {error && <div className="error-message">{error}</div>}
+          {notice && <div className="error-message" style={{ background: 'rgba(34, 197, 94, 0.12)', color: '#166534', borderColor: 'rgba(34, 197, 94, 0.35)' }}>{notice}</div>}
           <div className="form-group">
             <label>One-Time Password (OTP)</label>
             <input
@@ -79,6 +105,15 @@ function EmailVerification() {
           </div>
           <button type="submit" className="submit-btn" disabled={loading}>
             {loading ? 'Verifying...' : 'Verify Account'}
+          </button>
+          <button
+            type="button"
+            className="submit-btn"
+            style={{ marginTop: 12, background: 'transparent', color: 'inherit', border: '1px solid currentColor' }}
+            onClick={handleResend}
+            disabled={resending || loading}
+          >
+            {resending ? 'Sending...' : 'Resend verification code'}
           </button>
         </form>
       </div>

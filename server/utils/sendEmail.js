@@ -3,26 +3,85 @@
 const axios = require('axios');
 const nodemailer = require('nodemailer');
 
+function trimEnv(name) {
+  const value = process.env[name];
+  return value != null ? String(value).trim() : '';
+}
+
+function getBrevoApiKey() {
+  return trimEnv('BREVO_API_KEY') || trimEnv('SENDINBLUE_API_KEY');
+}
+
+function getFromEmail() {
+  return trimEnv('EMAIL_FROM');
+}
+
+function isRenderHost() {
+  return Boolean(process.env.RENDER);
+}
+
+function getEmailConfigStatus() {
+  const apiKey = getBrevoApiKey();
+  const fromEmail = getFromEmail();
+  const onRender = isRenderHost();
+  const smtpConfigured = Boolean(
+    trimEnv('EMAIL_HOST') && trimEnv('EMAIL_USER') && trimEnv('EMAIL_PASS') && fromEmail
+  );
+
+  let deliveryMethod = 'none';
+  if (apiKey) {
+    deliveryMethod = 'brevo-api';
+  } else if (smtpConfigured && !onRender) {
+    deliveryMethod = 'smtp';
+  } else if (smtpConfigured && onRender) {
+    deliveryMethod = 'smtp-blocked-on-render';
+  }
+
+  return {
+    onRender,
+    deliveryMethod,
+    brevoApiKeyConfigured: Boolean(apiKey),
+    brevoApiKeyLooksValid: apiKey.startsWith('xkeysib-'),
+    emailFromConfigured: Boolean(fromEmail),
+    smtpConfigured,
+    ready: Boolean(apiKey && fromEmail),
+    hint:
+      !apiKey && onRender
+        ? 'Set BREVO_API_KEY in Render (Brevo → SMTP & API → API Keys). SMTP port 587 is blocked on Render free tier.'
+        : !fromEmail
+          ? 'Set EMAIL_FROM to your verified Brevo sender address.'
+          : apiKey && !apiKey.startsWith('xkeysib-')
+            ? 'BREVO_API_KEY should start with xkeysib-. You may have pasted the SMTP password by mistake.'
+            : null,
+  };
+}
+
 function logEmailEnv() {
+  const status = getEmailConfigStatus();
   console.log('EMAIL env check:', {
-    BREVO_API_KEY: process.env.BREVO_API_KEY ? '(set)' : '(missing)',
-    EMAIL_FROM: process.env.EMAIL_FROM ? '(set)' : '(missing)',
-    EMAIL_HOST: process.env.EMAIL_HOST ? '(set)' : '(missing)',
-    EMAIL_USER: process.env.EMAIL_USER ? '(set)' : '(missing)',
-    EMAIL_PASS: process.env.EMAIL_PASS ? '(set)' : '(missing)',
+    ...status,
+    EMAIL_HOST: trimEnv('EMAIL_HOST') ? '(set)' : '(missing)',
+    EMAIL_USER: trimEnv('EMAIL_USER') ? '(set)' : '(missing)',
+    EMAIL_PASS: trimEnv('EMAIL_PASS') ? '(set)' : '(missing)',
   });
 }
 
 async function sendViaBrevoApi(options) {
-  const apiKey = process.env.BREVO_API_KEY;
-  const fromEmail = process.env.EMAIL_FROM;
+  const apiKey = getBrevoApiKey();
+  const fromEmail = getFromEmail();
 
   if (!apiKey || !fromEmail) {
     throw new Error('BREVO_API_KEY and EMAIL_FROM must be set for Brevo API delivery.');
   }
 
+  if (!apiKey.startsWith('xkeysib-')) {
+    throw new Error(
+      'BREVO_API_KEY looks invalid (expected xkeysib-...). Use an API key from Brevo → SMTP & API → API Keys, not the SMTP password.'
+    );
+  }
+
   console.log('Using Brevo HTTP API (port 443 — works on Render free tier)');
-  console.log('Calling sendMail via Brevo API...');
+  console.log('Calling sendMail via Brevo API...', { to: options.email, from: fromEmail });
 
   const response = await axios.post(
     'https://api.brevo.com/v3/smtp/email',
@@ -52,12 +111,12 @@ async function sendViaSmtp(options) {
   logEmailEnv();
 
   const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST,
+    host: trimEnv('EMAIL_HOST'),
     port: 587,
     secure: false,
     auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
+      user: trimEnv('EMAIL_USER'),
+      pass: trimEnv('EMAIL_PASS'),
     },
   });
 
@@ -66,7 +125,7 @@ async function sendViaSmtp(options) {
   console.log('SMTP verified');
 
   const message = {
-    from: `LocalHelp <${process.env.EMAIL_FROM}>`,
+    from: `LocalHelp <${getFromEmail()}>`,
     to: options.email,
     subject: options.subject,
     html: options.message,
@@ -80,15 +139,22 @@ async function sendViaSmtp(options) {
 }
 
 const sendEmail = async (options) => {
+  logEmailEnv();
+
   try {
-    if (process.env.BREVO_API_KEY) {
+    const apiKey = getBrevoApiKey();
+
+    if (apiKey) {
       return await sendViaBrevoApi(options);
     }
 
-    console.warn(
-      'BREVO_API_KEY not set — falling back to SMTP on port 587. ' +
-        'Render free tier blocks SMTP ports; set BREVO_API_KEY in production.'
-    );
+    if (isRenderHost()) {
+      throw new Error(
+        'BREVO_API_KEY is not set on Render. SMTP ports 587/465/25 are blocked on the free tier — add BREVO_API_KEY and EMAIL_FROM in Render environment variables.'
+      );
+    }
+
+    console.warn('BREVO_API_KEY not set — falling back to SMTP (local dev only)');
     return await sendViaSmtp(options);
   } catch (error) {
     console.error('SEND MAIL ERROR:', error);
@@ -96,8 +162,14 @@ const sendEmail = async (options) => {
     if (error.response?.data) {
       console.error('Brevo API error body:', error.response.data);
     }
+
+    const brevoMessage = error.response?.data?.message;
+    if (brevoMessage) {
+      throw new Error(`Brevo API: ${brevoMessage}`);
+    }
     throw error;
   }
 };
 
 module.exports = sendEmail;
+module.exports.getEmailConfigStatus = getEmailConfigStatus;

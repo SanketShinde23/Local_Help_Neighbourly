@@ -53,7 +53,10 @@ function Signup() {
       });
       const data = await response.json();
       console.log('Signup: register response', response.status, data);
-      if (!response.ok) throw new Error(data.msg || 'Something went wrong');
+      if (!response.ok) {
+        const detail = [data.reason, data.hint].filter(Boolean).join(' — ');
+        throw new Error(detail || data.msg || 'Something went wrong');
+      }
       
       console.log('Signup: success — navigating to verify-email');
       navigate('/verify-email', { state: { email: formData.email } });

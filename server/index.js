@@ -10,23 +10,11 @@ if (!process.env.JWT_SECRET || !String(process.env.JWT_SECRET).trim()) {
   process.exit(1);
 }
 
-const emailViaApi = Boolean(process.env.BREVO_API_KEY);
-const emailViaSmtp = Boolean(
-  process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASS && process.env.EMAIL_FROM
-);
-
-if (!emailViaApi && !emailViaSmtp) {
-  console.warn(
-    'WARNING: No email delivery configured. Set BREVO_API_KEY + EMAIL_FROM (recommended on Render) ' +
-      'or EMAIL_HOST, EMAIL_USER, EMAIL_PASS, EMAIL_FROM for SMTP.'
-  );
-} else if (!emailViaApi && emailViaSmtp) {
-  console.warn(
-    'WARNING: Using SMTP only. Render free tier blocks outbound ports 587/465/25 — ' +
-      'emails will not send until you set BREVO_API_KEY or upgrade to a paid Render instance.'
-  );
-} else {
-  console.log('Email delivery: Brevo HTTP API (BREVO_API_KEY set)');
+const { getEmailConfigStatus } = require('./utils/sendEmail');
+const emailStatus = getEmailConfigStatus();
+console.log('Email config at startup:', emailStatus);
+if (emailStatus.hint) {
+  console.warn('EMAIL SETUP:', emailStatus.hint);
 }
 
 app.use(cors({
@@ -39,6 +27,9 @@ app.use(express.json());
 
 // Routes
 app.get('/', (req, res) => res.send('API Running'));
+app.get('/api/health/email', (req, res) => {
+  res.json(getEmailConfigStatus());
+});
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/services', require('./routes/services'));
 app.use('/api/jobs', require('./routes/jobs'));
