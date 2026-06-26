@@ -11,9 +11,9 @@ if (!process.env.JWT_SECRET || !String(process.env.JWT_SECRET).trim()) {
 }
 
 app.use(cors({
-  origin: "*",
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  credentials: true,
 }));
 
 app.use(express.json());

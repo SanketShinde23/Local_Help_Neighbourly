@@ -1,4 +1,5 @@
-export const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+export const API_BASE =
+  import.meta.env.VITE_API_URL || 'https://local-help-neighbourly.onrender.com';
 
 export function authHeaders(token) {
   const headers = { 'Content-Type': 'application/json' };
