@@ -208,7 +208,7 @@
     transform: none;
     transition: background-color 0.3s ease;
   }
-  .navbar-links.active  { display: flex; }
+  .navbar-links.active  { display: flex; z-index: 1001; }
   .navbar-links a       { width: 100%; text-align: center; padding: 12px; }
 
   .navbar-user .auth-buttons,

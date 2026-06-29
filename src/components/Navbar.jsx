@@ -1,6 +1,6 @@
 // src/components/Navbar.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -30,8 +30,23 @@ function Navbar() {
     navigate('/');
   };
 
+  useEffect(() => {
+    document.body.style.overflow = isMenuOpen ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMenuOpen]);
+
   return (
     <nav className="navbar">
+      {isMenuOpen && (
+        <button
+          type="button"
+          className="navbar-backdrop"
+          aria-label="Close menu"
+          onClick={() => setIsMenuOpen(false)}
+        />
+      )}
       <div className="navbar-container">
         <div className="navbar-logo" onClick={handleLogoClick}>
           <div>
@@ -106,6 +121,7 @@ function Navbar() {
             className="menu-toggle"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
+            aria-expanded={isMenuOpen}
           >
             <span></span>
             <span></span>
