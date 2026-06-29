@@ -6,6 +6,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import SeekerDashboard from '../components/SeekerDashboard';
 import ProviderDashboard from '../components/ProviderDashboard';
 import './Pages.css';
+import './AdminServices.css';
 
 function Profile() {
   const { user, logout } = useAuth();
@@ -30,8 +31,8 @@ function Profile() {
 
   if (user.userType === 'admin') {
     return (
-      <div className="page-container profile-dashboard-page">
-        <div className="page-header" style={{ marginBottom: 24 }}>
+      <div className="page-container profile-dashboard-page admin-profile-page">
+        <div className="page-header page-header--compact">
           <h1>Admin</h1>
           <p>Review new provider listings and use the booking list to see seeker and provider contact when mediating.</p>
         </div>
@@ -45,7 +46,7 @@ function Profile() {
             <span className="user-role-badge">Administrator</span>
           </div>
           <div className="profile-actions">
-            <Link to="/admin" className="logout-btn-profile" style={{ textDecoration: 'none', display: 'inline-block' }}>
+            <Link to="/admin" className="logout-btn-profile">
               Admin panel
             </Link>
             <button type="button" onClick={handleLogout} className="logout-btn-profile">
@@ -53,8 +54,8 @@ function Profile() {
             </button>
           </div>
         </div>
-        <p style={{ marginTop: 16 }}>
-          <Link to="/admin" className="view-details-btn" style={{ display: 'inline-block' }}>
+        <p className="admin-profile-cta">
+          <Link to="/admin" className="view-details-btn">
             Open pending listings
           </Link>
         </p>

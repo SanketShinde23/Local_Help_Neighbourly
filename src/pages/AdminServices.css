@@ -1,0 +1,256 @@
+/* Admin panel — layout & mobile responsiveness */
+
+.admin-services-page {
+  overflow-x: clip;
+  max-width: 100%;
+}
+
+.admin-services-page .page-header p {
+  max-width: 100%;
+}
+
+.admin-back-link {
+  margin: 0 0 20px;
+  font-size: 0.92rem;
+}
+
+.admin-back-link a {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.admin-back-link a:hover {
+  text-decoration: underline;
+}
+
+.admin-pending-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-pending-card h2 {
+  margin: 0 0 8px;
+  font-size: 1.2rem;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.admin-pending-card .muted,
+.admin-pending-card p {
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.admin-booking-body {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+}
+
+.admin-booking-actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: flex-start;
+}
+
+.admin-booking-actions .action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .admin-pending-card,
+  .admin-booking-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-pending-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .admin-pending-actions .action-btn,
+  .admin-pending-actions a.action-btn {
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
+  }
+
+  /* Preview link spans full width below Approve / Reject */
+  .admin-pending-actions a.action-btn {
+    grid-column: 1 / -1;
+  }
+
+  .admin-booking-actions {
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  .admin-booking-actions .action-btn {
+    width: 100%;
+  }
+
+  .admin-booking-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .admin-booking-parties {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .admin-services-page {
+    padding-left: max(14px, env(safe-area-inset-left));
+    padding-right: max(14px, env(safe-area-inset-right));
+  }
+
+  .admin-services-page .page-header {
+    margin-bottom: 20px;
+    text-align: left;
+  }
+
+  .admin-services-page .page-header h1 {
+    font-size: 1.65rem;
+  }
+
+  .admin-services-page .page-header p {
+    font-size: 0.9rem;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .admin-subheading {
+    font-size: 1rem;
+    margin-top: 22px;
+  }
+
+  .admin-subheading-spaced {
+    margin-top: 28px;
+  }
+
+  .admin-section-lead {
+    font-size: 0.85rem;
+  }
+
+  .admin-pending-list,
+  .admin-bookings-list {
+    gap: 12px;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .admin-pending-card,
+  .admin-booking-card {
+    padding: 14px;
+    gap: 12px;
+  }
+
+  /* Stack action buttons vertically on small phones */
+  .admin-pending-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-pending-actions a.action-btn {
+    grid-column: auto;
+  }
+
+  .admin-provider-contact {
+    font-size: 0.82rem;
+    line-height: 1.45;
+  }
+
+  .admin-contact-line {
+    display: inline-block;
+    max-width: 100%;
+  }
+
+  .admin-booking-location {
+    font-size: 0.88rem;
+    line-height: 1.45;
+  }
+
+  .status-badge {
+    font-size: 0.68rem;
+    padding: 4px 10px;
+  }
+}
+
+@media (max-width: 380px) {
+  .admin-pending-card h2 {
+    font-size: 1.05rem;
+  }
+
+  .admin-pending-actions .action-btn,
+  .admin-booking-actions .action-btn {
+    padding: 10px 14px;
+    font-size: 0.84rem;
+  }
+}
+
+/* Admin profile shortcut page (/profile as admin) */
+.admin-profile-page .profile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+  margin-left: 0;
+  margin-top: 8px;
+}
+
+.admin-profile-page .profile-actions .logout-btn-profile {
+  flex: 1;
+  min-width: 120px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-profile-cta {
+  margin-top: 16px;
+}
+
+.admin-profile-cta .view-details-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .admin-profile-page .profile-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px 16px;
+  }
+
+  .admin-profile-page .profile-info h1 {
+    font-size: 1.45rem;
+  }
+
+  .admin-profile-page .profile-actions {
+    flex-direction: column;
+  }
+
+  .admin-profile-page .profile-actions .logout-btn-profile {
+    width: 100%;
+  }
+}

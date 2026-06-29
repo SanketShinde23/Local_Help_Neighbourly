@@ -1447,6 +1447,22 @@
 }
 .admin-pending-card:hover { box-shadow: var(--shadow-sm); }
 
+.page-header--compact {
+  margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+  .page-header--compact {
+    margin-bottom: 18px;
+    text-align: left;
+  }
+
+  .page-header--compact p {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
 .admin-provider-contact {
   font-size: 0.85rem;
   color: #64748b;

@@ -4,6 +4,7 @@ import { FaSpinner } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import { API_BASE, authHeaders } from '../config/api';
 import './Pages.css';
+import './AdminServices.css';
 
 function AdminServices() {
   const { user, token, logout } = useAuth();
@@ -106,7 +107,7 @@ function AdminServices() {
         </p>
       </div>
 
-      <p>
+      <p className="admin-back-link">
         <Link to="/profile">← Profile</Link>
       </p>
 
@@ -123,7 +124,7 @@ function AdminServices() {
         <ul className="admin-pending-list">
           {pending.map((s) => (
             <li key={s._id} className="admin-pending-card">
-              <div>
+              <div className="admin-pending-body">
                 <h2>{s.name}</h2>
                 <p className="muted">
                   Category: <strong>{s.category}</strong> · Provider: <strong>{s.providerName}</strong> · ₹{s.price}/hr
@@ -176,7 +177,7 @@ function AdminServices() {
         <ul className="admin-bookings-list">
           {bookings.map((b) => (
             <li key={b._id} className="admin-booking-card">
-              <div>
+              <div className="admin-booking-body">
                 <p className="admin-booking-title">
                   <strong>{b.service?.name || 'Service'}</strong>
                   <span className={`status-badge status-${(b.status || 'pending').toLowerCase()}`}>{b.status}</span>
@@ -215,9 +216,11 @@ function AdminServices() {
                 </div>
               </div>
               {b.service?._id ? (
-                <Link to={`/service/${b.service._id}`} className="action-btn secondary small-btn">
-                  Service page
-                </Link>
+                <div className="admin-booking-actions">
+                  <Link to={`/service/${b.service._id}`} className="action-btn secondary small-btn">
+                    Service page
+                  </Link>
+                </div>
               ) : null}
             </li>
           ))}
